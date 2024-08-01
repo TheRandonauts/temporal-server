@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  temporal_server:
+    build: .
+    ports:
+      - "3333:3333"
+    volumes:
+      - .:/usr/src/temporal_server
+    command: /usr/local/bin/temporal_server
