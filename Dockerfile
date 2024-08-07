@@ -1,28 +1,19 @@
-# Use the official Rust image as the build environment
 FROM rust:latest AS builder
-
-# Install musl tools
-RUN apt-get update && apt-get install -y musl-tools
-
-# Create a new directory for our project and copy the source code
-WORKDIR /usr/src/temporal_server
+WORKDIR /opt/temporal_server
 COPY . .
+RUN cargo build --release
 
-# Set the target to musl for static linking
-RUN rustup target add x86_64-unknown-linux-musl
-RUN cargo install --target x86_64-unknown-linux-musl --path .
+FROM debian:bookworm
+RUN apt-get update && apt-get install -y build-essential git && rm -rf /var/lib/apt/lists/*
+RUN which gcc
+RUN git clone https://github.com/TheRandonauts/temporal /opt/temporal
+WORKDIR /opt/temporal
+RUN sed -i 's/sudo//g' make.sh
+RUN chmod +x make.sh && ./make.sh
+RUN mv result/Linux/temporal /usr/local/bin/temporal
+RUN rm -R build
+RUN rm -R result
 
-# Use a minimal image for the final container
-FROM debian:buster-slim
+COPY --from=builder /opt/temporal_server/target/release/temporal_server /usr/local/bin/temporal_server
 
-# Copy the statically linked binary from the builder stage
-COPY --from=builder /usr/src/temporal_server/target/x86_64-unknown-linux-musl/release/temporal_server /usr/local/bin/temporal_server
-
-# Copy the binary executable that generates the hex digits
-COPY ./temporal /usr/local/bin/temporal
-
-# Expose the port that the server will run on
-EXPOSE 3333
-
-# Set the binary as the entrypoint
 CMD ["temporal_server"]

@@ -11,7 +11,7 @@ async fn main() {
             let num_digits = length * 2;
             
             // Call the binary executable
-            let output = Command::new("./temporal")
+            let output = Command::new("temporal")
                 .arg("hexdump")
                 .arg("0")
                 .arg(num_digits.to_string())
@@ -30,6 +30,6 @@ async fn main() {
 
     // Start the warp server
     warp::serve(temporal)
-        .run(([127, 0, 0, 1], 3333))
+        .run(([0, 0, 0, 0], 3333))
         .await;
 }
