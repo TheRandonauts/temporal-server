@@ -5,7 +5,7 @@ use std::str;
 #[tokio::main]
 async fn main() {
     // Define the `temporal` endpoint
-    let temporal = warp::path!("temporal" / u32)
+    let temporal = warp::path!(u32)
         .map(|length: u32| {
             // Calculate the number of hex digits
             let num_digits = length * 2;

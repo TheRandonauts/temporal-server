@@ -2,5 +2,6 @@ services:
   temporal_server:
     build: .
     ports:
-      - "3333:3333"
+      - "80:3333"
+      - "443:3333"
     command: /usr/local/bin/temporal_server
